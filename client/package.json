@@ -9,11 +9,19 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.8",
+    "@emotion/styled": "^11.10.8",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.12.2",
     "constants-browserify": "^1.0.0",
+    "http-proxy-middleware": "^2.0.6",
     "ipfs-api": "^26.1.2",
+    "ipfs-core": "^0.18.0",
+    "ipfs-http-client": "^60.0.0",
     "path-browserify": "^1.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.10.0",
     "web3": "^1.8.2"
   },
   "devDependencies": {

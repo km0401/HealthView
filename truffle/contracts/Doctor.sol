@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
-contract Doctors{
+contract Doctor{
     uint dindex=0;
     struct doctor {
         uint docId;
@@ -14,23 +14,121 @@ contract Doctors{
         bool isApproved;
     }
 
+    uint pindex = 0;
+    uint rid = 0;
+    struct Patients{
+        uint patientId;
+        address patientAddr;
+        string patientName;
+        string phone;
+        string gender;
+        string dob;
+        string bloodgroup;
+        Records [] records;
+    }
+
+    struct Records{
+        uint recordid;
+        string docName;
+        string reasonVisit;
+        string visitDate;
+        uint timeStamp;
+        string ipfs;
+    }
+
     address[] public doctorList;
     uint256 [] public registeredDoctorList;
     address public  owner;
     mapping(address=>doctor) doctorDetails;
     mapping(address=>bool) isDoctor;
     mapping(string=>mapping(uint=>bool)) Registered;
+    address[] patientList;
+    mapping(address=>Patients) patientDetails;
+    mapping(address=>bool) isPatient;
+    mapping(address=>mapping(address=>bool)) Authorized;
 
     constructor(){
         owner = msg.sender;
     }
 
+     function isAuthorized(address _patientAddr,address client ) public view returns (bool success){
+        return Authorized[_patientAddr][client];
+    }
     function getMappingIsDoctor(address _address) public view returns (bool) {
         return isDoctor[_address];
+    }
+    function getMappingIsPatient(address _address) public view returns (bool) {
+        return isPatient[_address];
+    }
+    function addPatient(string memory _patientName, string memory _phone, string memory _gender, string memory _dob, string memory _bloodgroup) public {
+        require(!isPatient[msg.sender],"Already Patient account exists");
+        require(bytes(_patientName).length>0);
+        require(bytes(_phone).length>0);
+        require(bytes(_gender).length>0);
+        require(bytes(_dob).length>0);
+        require(bytes(_bloodgroup).length>0);        
+        patientList.push(msg.sender);
+        patientDetails[msg.sender].patientId = pindex;
+        pindex+=1;
+        isPatient[msg.sender]=true;
+        patientDetails[msg.sender].patientAddr = msg.sender;
+        patientDetails[msg.sender].patientName = _patientName;
+        patientDetails[msg.sender].phone = _phone;
+        patientDetails[msg.sender].gender = _gender;
+        patientDetails[msg.sender].dob = _dob;
+        patientDetails[msg.sender].bloodgroup = _bloodgroup;
+    }
+
+    function getPatientDetails(address _addr) public view returns(string memory _patientName,string memory _phone,string memory _gender,string memory _dob,string memory _bloodgroup){
+        require(isPatient[_addr],"No Patients found at the given address");
+        Patients memory pat = patientDetails[_addr];
+        return (pat.patientName,pat.phone,pat.gender,pat.dob,pat.bloodgroup);
+    }
+
+    function grantAccess(address _addr) public returns (bool success)
+    {   require(msg.sender != _addr,"You cannot add yourself");
+        require(getMappingIsDoctor(_addr),"Not registered as doctor");
+        require(!Authorized[msg.sender][_addr],"User is already authorized");
+        Authorized[msg.sender][_addr] = true;
+        return true;
+    }
+
+    function revoke_access(address _addr)  public returns (bool success){
+        require(msg.sender!=_addr,"You can't remove yourself");
+        require(Authorized[msg.sender][_addr],"User is not authorized yet");
+        Authorized[msg.sender][_addr] = false;
+        return true;
+    }
+
+    function addRecord(string memory _docName, string memory _reasonVisit, string memory _visitDate, address _addr, string memory _ipfs) public {
+        require(isPatient[_addr],"No patient found at the given address");
+        if(Authorized[_addr][msg.sender] || msg.sender == _addr){
+                patientDetails[_addr].records.push(Records(rid, _docName,_reasonVisit,_visitDate, block.timestamp, _ipfs));
+                rid+=1;
+        }
+        else 
+        revert("Record cannot be added");
+    }
+
+    function getrecordlist(address _addr)  public view returns (uint256 ){  
+     return (patientDetails[_addr].records.length);
+     }
+
+    function getPatientRecords(address _addr, uint256 _id) public view 
+    returns(uint _rid,string memory dname, string memory reason ,string memory visitedDate, uint timeStamp, string memory ipfshash){
+        require(isPatient[_addr],"No patient found at the given address");
+        if(Authorized[_addr][msg.sender] || msg.sender == _addr){
+                return( patientDetails[_addr].records[_id].recordid, patientDetails[_addr].records[_id].docName,patientDetails[_addr].records[_id].reasonVisit,
+                patientDetails[_addr].records[_id].visitDate,patientDetails[_addr].records[_id].timeStamp, patientDetails[_addr].records[_id].ipfs
+                    );
+        }
+        else 
+        revert("Record cannot be accessed");
     }
 
     function registerDoctor(string memory _docName, uint _licenseNo) public{
         require(msg.sender==owner,"Only authority/owner can register the doctor");
+        require(!Registered[_docName][_licenseNo]);
         Registered[_docName][_licenseNo] = true;
         registeredDoctorList.push(_licenseNo);
     }
@@ -76,3 +174,4 @@ contract Doctors{
         return (doc.docId,doc.docName,doc.docContact,doc.hName,doc.dept,doc.docAddr,doc.isApproved,doc.licenseNo);
     }
 }
+
