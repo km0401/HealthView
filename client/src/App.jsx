@@ -1,4 +1,5 @@
 import EthProvider from "./contexts/EthContext/EthProvider";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Admin from "./pages/admin/index"
 import Doctor from "./pages/doctor";
 import DoctorRegister from "./pages/doctorRegister";
@@ -10,12 +11,14 @@ function App() {
 
   return (
     <EthProvider>
-      <Admin/>
-      <DoctorRegister/>
-      <Doctor/>
-      <PatientRegister/>
-      <Patient/>
-      {/* <PatientDetail/> */}
+      <Router>
+      <Routes>
+      <Route path ='/' element={<Admin />}/>
+      <Route path='/register' element={<><DoctorRegister/><PatientRegister/></>}/>
+      <Route path='/doctor' element={<Doctor/>}/>
+      <Route path = '/patient' element={<Patient/>}/>
+      </Routes>
+      </Router>
     </EthProvider>
   );
 }

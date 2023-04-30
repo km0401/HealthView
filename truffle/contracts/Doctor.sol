@@ -173,5 +173,18 @@ contract Doctor{
         doctor memory doc = doctorDetails[_address];
         return (doc.docId,doc.docName,doc.docContact,doc.hName,doc.dept,doc.docAddr,doc.isApproved,doc.licenseNo);
     }
+
+    function getSenderRole() public view returns (string memory) {
+    if (doctorDetails[msg.sender].docAddr == msg.sender) {
+      return "doctor";
+    } else if (patientDetails[msg.sender].patientAddr == msg.sender) {
+      return "patient";
+    }
+    else if(msg.sender==owner){
+        return "admin";
+    } else {
+      return "unknown";
+    }
+  }
 }
 

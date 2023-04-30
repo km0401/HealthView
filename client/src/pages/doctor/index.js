@@ -1,27 +1,19 @@
 import React, {useState} from 'react'
 import useEth from '../../contexts/EthContext/useEth'
 import DoctorDetail from '../../components/doctorDetail';
+import CloudDownloadRoundedIcon from '@mui/icons-material/CloudDownloadRounded'
+import FileSaver from 'file-saver';
 import { Typography, TextField, Button, Box, FormControl, Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,} from '@mui/material';
+  TableRow,IconButton} from '@mui/material';
 import CustomButton from '../../components/CustomButton'
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
 import PatientDetail from '../../components/patientDetail';
 import { create } from 'ipfs-http-client';
-import { makeStyles } from "@material-ui/core/styles";
-
-
-const useStyles = makeStyles({
-  tableContainer: {
-    maxWidth: 600,
-    margin: 'auto',
-    marginTop: 50,
-  },
-});
 
 // import ipfs from "../../ipfs"
 function Doctor() {
@@ -30,13 +22,11 @@ function Doctor() {
   } = useEth()
   
 // const doctorContract = contracts[1];
-const classes = useStyles();
   const [records, setRecords] = useState([]);
   const [doctor, setDoctor] = useState([]);
   const [doctorExist, setDoctorExist] = useState(false);
   const [searchPatientAddress, setSearchPatientAddress] = useState([]);
   const [recordlen, setRecordLength] = useState(0);
-  const [patientRecords, setPatientRecords] = useState([]);
   const [patientAddr, setPatientAddr] = useState([]);
   const [patient, setPatient] = useState([]);
   const [patientExist, setPatientExist] = useState(false);
@@ -47,6 +37,7 @@ const classes = useStyles();
   const [fileHash, setFileHash] = useState("");
   const [file, setFile] = useState(null);
 
+  
   const handleGetRecords = async () => {
     try {
       const authorized = await contract.methods.isAuthorized(searchPatientAddress, accounts[0]).call({from:accounts[0]})
@@ -57,21 +48,23 @@ const classes = useStyles();
       setRecordLength(rlen);
       if (authorized) {
         let record = [];
-        for (var i = 0; i < recordlen; i++) {
+        for (var i = 0; i < rlen; i++) {
           const result = await contract.methods
             .getPatientRecords(searchPatientAddress, i)
             .call({ from: accounts[0] });
           console.log(result);
+          console.log("This is result")
           record.push({
-            id: result.recordid,
-            dname: result.docName,
-            reason: result.reasonVisit,
-            visDate: result.visitDate,
-            time: result.timestamp,
-            ipfs: result.ipfs,
+            id: result._rid,
+            dname: result.dname,
+            reason: result.reason,
+            visDate: result.visitedDate,
+            timeStamp: result.timeStamp,
+            ipfs: result.ipfshash,
           });
         }
         console.log(record);
+        console.log("This is record")
         setRecords(record);
       } else {
         alert("Sorry! You are not authorized to get the whole record.");
@@ -127,7 +120,7 @@ const ipfs = create({
 const handleAddRecord = async () => {
   console.log("handlerecord")
   try {
-    const authorized = await contract.methods.isAuthorized(patientAddr, accounts[0]).call({from:accounts[0]})
+    const authorized = await contract.methods.isAuthorized(accounts[0]).call({from:accounts[0]})
     console.log(authorized)
     if(authorized){
       console.log("if conditon")
@@ -135,8 +128,9 @@ const handleAddRecord = async () => {
       console.log("authroized set true")
       console.log(file)
       const added = await ipfs.add(file);
-    setFileHash(added.path);
-    await contract.methods.addRecord(docName, reasonVisit, visitDate, patientAddr, added.path).send({ from: accounts[0] });
+    setFileHash(added.cid.toString());
+    console.log(added.cid.toString());
+    await contract.methods.addRecord(docName, reasonVisit, visitDate, accounts[0], added.cid.toString()).send({ from: accounts[0] });
       alert('File added successfully');
     }
     console.log("recordadded")
@@ -207,31 +201,45 @@ getDoctorDetails();
       <Typography variant="h4" gutterBottom>
         Patient Records
       </Typography>
-      <TableContainer className={classes.tableContainer} component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Document Name</TableCell>
-              <TableCell>Reason for Visit</TableCell>
-              <TableCell>Visit Date</TableCell>
-              <TableCell>Timestamp</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {records.map((record, index) => (
-              <TableRow key={index}>
-                <TableCell>{record['dname']}</TableCell>
-                <TableCell>{record['reason']}</TableCell>
-                <TableCell>{record['visDate']}</TableCell>
-                <TableCell>{record['time']}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <TableContainer component={Paper}>
+  <Table aria-label="simple table">
+    <TableHead>
+      <TableRow>
+        <TableCell>ID</TableCell>
+        <TableCell align="center">Doctor Name</TableCell>
+        <TableCell align="center">Reason</TableCell>
+        <TableCell align="center">Visited Date</TableCell>
+        <TableCell align="center">Time Stamp</TableCell>
+        <TableCell align="center">IPFS Hash</TableCell>
+        <TableCell align="center">Download</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {records.map((record) => (
+        <TableRow key={record.id}>
+          <TableCell component="th" scope="row">
+            {record.id}
+          </TableCell>
+          <TableCell align="center">{record.dname}</TableCell>
+          <TableCell align="center">{record.reason}</TableCell>
+          <TableCell align="center">{record.visDate}</TableCell>
+          <TableCell align="center">{record.timeStamp}</TableCell>
+          <TableCell align="center">{record.ipfs}</TableCell>
+          <TableCell>
+          {/* <a href={"https://ipfs.io/ipfs/"+record.ipfs} download target='_blank' rel='noopener noreferrer'> */}
+              <IconButton>
+                <CloudDownloadRoundedIcon fontSize='large' onClick={(e) => { e.preventDefault(); window.open("https://ipfs.io/ipfs/"+record.ipfs); }}/>
+              </IconButton>
+              {/* </a> */}
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+</TableContainer>
     </div>
                  
-                  
+    
                     <Box>
                     <TextField
         label="Doctor Name"
