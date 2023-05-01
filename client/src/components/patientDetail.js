@@ -8,23 +8,20 @@ const PatientDetail = ({patients}) => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Patient Name</TableCell>
-              <TableCell>{_patientName}</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>{_phone}</TableCell>
+            <TableRow style={{ backgroundColor: '#00BFA5' }}>
+              <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}}>Patient Name</TableCell>
+              <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}}>Gender</TableCell>
+              <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}}>Date of Birth</TableCell>
+              <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}}>Blood Group</TableCell>
+              <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}}>Phone</TableCell>
+              
             </TableRow>
             <TableRow>
-              <TableCell>Gender</TableCell>
-              <TableCell>{_gender}</TableCell>
-              <TableCell>Date of Birth</TableCell>
-              <TableCell>{_dob}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Blood Group</TableCell>
-              <TableCell>{_bloodgroup}</TableCell>
-              <TableCell></TableCell>
-              <TableCell></TableCell>
+            <TableCell style={{ color: '#000000', fontSize:'15px' }}>{_patientName}</TableCell>
+              <TableCell style={{ color: '#000000', fontSize:'15px' }}>{_gender}</TableCell>
+              <TableCell style={{ color: '#000000', fontSize:'15px' }}>{_dob}</TableCell>
+              <TableCell style={{ color: '#000000', fontSize:'15px' }}>{_bloodgroup}</TableCell>
+              <TableCell style={{ color: '#000000', fontSize:'15px' }}>{_phone}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

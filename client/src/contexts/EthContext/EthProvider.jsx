@@ -26,9 +26,16 @@ function EthProvider({ children }) {
         console.error(err)
       }
 
+      let role = 'unknown'
+      if (contract && accounts) {
+        console.log(accounts[0])
+        role = await contract.methods.getSenderRole().call({ from: accounts[0] })
+        console.log(role)
+      }
+
       dispatch({
         type: actions.init,
-        data: { artifact, web3, accounts, networkID, contract, loading: false },
+        data: { artifact, web3, accounts, networkID, contract, role, loading: false },
       })
     }
   }, [])

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import useEth from '../../contexts/EthContext/useEth'
-import { TextField, Button, CircularProgress } from "@mui/material";
+import CustomButton from '../../components/CustomButton';
+import { TextField, Button, CircularProgress, Card, Box, Typography} from "@mui/material";
 
 function DoctorRegister() {
   const {
@@ -54,8 +55,12 @@ function DoctorRegister() {
     }
   };
   return (
-    <div>
-      <h2>Doctor Registration Form</h2>
+    <>
+    <Card sx={{  borderRadius:'10px',width: '45%'}}>
+    <Box p={4}>
+      <Typography variant="h5" mb={1} gutterBottom sx={{textAlign:'center',fontWeight:500}}>
+        Add Doctor Details
+      </Typography>
       <TextField
         label="Name"
         value={doctorName}
@@ -63,6 +68,9 @@ function DoctorRegister() {
         margin="normal"
         variant="outlined"
         fullWidth
+        InputProps={{ style: { fontSize: '15px' } }}
+              InputLabelProps={{ style: { fontSize: '15px' } }}
+              size='small'
       />
       <TextField
         label="Contact"
@@ -71,6 +79,9 @@ function DoctorRegister() {
         margin="normal"
         variant="outlined"
         fullWidth
+        InputProps={{ style: { fontSize: '15px' } }}
+              InputLabelProps={{ style: { fontSize: '15px' } }}
+              size='small'
       />
       <TextField
         label="Hospital Name"
@@ -79,6 +90,9 @@ function DoctorRegister() {
         margin="normal"
         variant="outlined"
         fullWidth
+        InputProps={{ style: { fontSize: '15px' } }}
+              InputLabelProps={{ style: { fontSize: '15px' } }}
+              size='small'
       />
       <TextField
         label="Department"
@@ -87,6 +101,9 @@ function DoctorRegister() {
         margin="normal"
         variant="outlined"
         fullWidth
+        InputProps={{ style: { fontSize: '15px' } }}
+              InputLabelProps={{ style: { fontSize: '15px' } }}
+              size='small'
       />
       <TextField
         label="License No."
@@ -95,11 +112,16 @@ function DoctorRegister() {
         margin="normal"
         variant="outlined"
         fullWidth
+        InputProps={{ style: { fontSize: '15px' } }}
+              InputLabelProps={{ style: { fontSize: '15px' } }}
+              size='small'
       />
-      <Button variant="contained" color="primary" onClick={handleDoctorRegister} disabled={loading}>
-        {loading ? <CircularProgress size={24} /> : "Register"}
-      </Button>
-    </div>
+      <Box sx={{ width: '100%', mt: 2, display: 'flex', justifyContent: 'center' }}>
+            <CustomButton  text={'Add Doctor Details'} handleClick={() => handleDoctorRegister()}/>
+            </Box>
+      </Box>
+      </Card>
+      </>
   )
 }
 

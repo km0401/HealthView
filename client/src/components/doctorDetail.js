@@ -8,32 +8,29 @@ const DoctorDetail = ({ doctor }) => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Doctor ID</TableCell>
-              <TableCell>{id}</TableCell>
-              <TableCell>Contact</TableCell>
-              <TableCell>{contact}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>{name}</TableCell>
-              <TableCell>Hospital Name</TableCell>
-              <TableCell>{hname}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Department</TableCell>
-              <TableCell>{faculty}</TableCell>
-              <TableCell>Wallet Address</TableCell>
-              <TableCell>{addr}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>License Number</TableCell>
-              <TableCell>{licenseno}</TableCell>
-              <TableCell>Approved</TableCell>
-              <TableCell>{isApproved ? "Yes" : "No"}</TableCell>
+            <TableRow style={{ backgroundColor: '#00BFA5' }}>
+              {/* <TableCell style={{ color: '#FFFFFF' }}>Doctor ID</TableCell> */}
+              <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}}>Name</TableCell>
+              <TableCell style={{ color: '#FFFFFF', fontSize:'15px' }}>Contact</TableCell>
+              
+              <TableCell style={{ color: '#FFFFFF', fontSize:'15px' }}>Hospital Name</TableCell>
+              <TableCell style={{ color: '#FFFFFF', fontSize:'15px' }}>Department</TableCell>
+              {/* <TableCell style={{ color: '#FFFFFF' }}>Wallet Address</TableCell> */}
+              <TableCell style={{ color: '#FFFFFF', fontSize:'15px' }}>License Number</TableCell>
+              <TableCell style={{ color: '#FFFFFF', fontSize:'15px' }}>Approved</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
+            <TableRow>
+              {/* <TableCell>{id}</TableCell> */}
+              <TableCell style={{ color: '#000000', fontSize:'15px' }}>{name}</TableCell>
+              <TableCell style={{ color: '#000000', fontSize:'15px' }}>{contact}</TableCell>
+              <TableCell style={{ color: '#000000', fontSize:'15px' }}>{hname}</TableCell>
+              <TableCell style={{ color: '#000000', fontSize:'15px' }}>{faculty}</TableCell>
+              {/* <TableCell>{addr}</TableCell> */}
+              <TableCell style={{ color: '#000000', fontSize:'15px' }}>{licenseno}</TableCell>
+              <TableCell style={{ color: '#000000', fontSize:'15px' }}>{isApproved ? "Yes" : "No"}</TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </TableContainer>

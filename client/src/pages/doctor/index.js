@@ -1,19 +1,20 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import useEth from '../../contexts/EthContext/useEth'
 import DoctorDetail from '../../components/doctorDetail';
 import CloudDownloadRoundedIcon from '@mui/icons-material/CloudDownloadRounded'
-import FileSaver from 'file-saver';
 import { Typography, TextField, Button, Box, FormControl, Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,IconButton} from '@mui/material';
+  TableRow,IconButton, Card} from '@mui/material';
 import CustomButton from '../../components/CustomButton'
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded'
 import PatientDetail from '../../components/patientDetail';
 import { create } from 'ipfs-http-client';
+import HeaderAppBar from '../../components/Header';
+import { useNavigate } from 'react-router-dom'
 
 // import ipfs from "../../ipfs"
 function Doctor() {
@@ -36,6 +37,16 @@ function Doctor() {
   const [visitDate, setVisitDate] = useState("");
   const [fileHash, setFileHash] = useState("");
   const [file, setFile] = useState(null);
+  const [buttonClicked, setButtonClicked] = useState(false)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    console.log(role)
+    if(role!== 'doctor'){
+      navigate('/');
+    }
+      
+  }, [role]);
 
   
   const handleGetRecords = async () => {
@@ -89,8 +100,10 @@ const getDoctorDetails = async () => {
 }
 
 const getPatientDetails = async()=>{
+  setButtonClicked(true)
   try{
     if (!/^(0x)?[0-9a-f]{40}$/i.test(searchPatientAddress)) {
+      console.log(searchPatientAddress)
       alert('Please enter a valid wallet address', 'error')
       return
     }
@@ -117,10 +130,13 @@ const ipfs = create({
 })
 
 
+      
+
+
 const handleAddRecord = async () => {
   console.log("handlerecord")
   try {
-    const authorized = await contract.methods.isAuthorized(accounts[0]).call({from:accounts[0]})
+    const authorized = await contract.methods.isAuthorized(patientAddr, accounts[0]).call({from:accounts[0]})
     console.log(authorized)
     if(authorized){
       console.log("if conditon")
@@ -130,7 +146,7 @@ const handleAddRecord = async () => {
       const added = await ipfs.add(file);
     setFileHash(added.cid.toString());
     console.log(added.cid.toString());
-    await contract.methods.addRecord(docName, reasonVisit, visitDate, accounts[0], added.cid.toString()).send({ from: accounts[0] });
+    await contract.methods.addRecord(docName, reasonVisit, visitDate, patientAddr, added.cid.toString()).send({ from: accounts[0] });
       alert('File added successfully');
     }
     console.log("recordadded")
@@ -157,16 +173,22 @@ const handleFileUpload = (event) => {
 getDoctorDetails();
   return (
     <>
-    <Box>
+    <HeaderAppBar/>
+    <Box ml={20} mr={20} mt={4} mb={4}>
+    <Typography variant='h4' fontWeight={600} style={{textAlign:'left'}}>
+    Your Doctor Details
+    </Typography>
+    <Box >
       {doctorExist && (
                     <Box display='flex' flexDirection='column' mt={3} mb={-2}>
                           <DoctorDetail doctor={doctor} />
                     </Box>
                   )}
                   </Box>
-
-                  <Typography variant='h4'>Get Patient Details</Typography>
-                  <Box display='flex' alignItems='center' my={1}>
+                  </Box>
+<Box ml={20} mr={20}  mt={8} mb={8}>
+                  <Typography variant='h4' fontWeight={600} style={{textAlign:'left'}}>Get Patient Details</Typography>
+                  <Box display='flex' alignItems='center' mt={2} mb={5}>
                     <FormControl fullWidth>
                       <TextField
                         variant='outlined'
@@ -184,8 +206,8 @@ getDoctorDetails();
                       </CustomButton>
                     </Box>
                   </Box>
-
-                  {!patientExist && (
+<Box>
+                  {!patientExist && searchPatientAddress.length!=0 && buttonClicked &&  (
                     <Box display='flex' alignItems='center' justifyContent='center' my={5}>
                       <Typography variant='h5'>No details found</Typography>
                     </Box>
@@ -196,39 +218,40 @@ getDoctorDetails();
                     <PatientDetail patients={patient} />
                     </Box>
                   )}
+                  </Box>
 
-                  <div>
-      <Typography variant="h4" gutterBottom>
+                  <Box mt={6} mb={6}>
+      <Typography variant="h4" fontWeight={600} gutterBottom sx={{textAlign:'left'}}>
         Patient Records
       </Typography>
       <TableContainer component={Paper}>
   <Table aria-label="simple table">
     <TableHead>
-      <TableRow>
-        <TableCell>ID</TableCell>
-        <TableCell align="center">Doctor Name</TableCell>
-        <TableCell align="center">Reason</TableCell>
-        <TableCell align="center">Visited Date</TableCell>
-        <TableCell align="center">Time Stamp</TableCell>
-        <TableCell align="center">IPFS Hash</TableCell>
-        <TableCell align="center">Download</TableCell>
+      <TableRow style={{ backgroundColor: '#00BFA5' }}>
+        <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}}>Record ID</TableCell>
+        <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}} align="center">Doctor Name</TableCell>
+        <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}} align="center">Reason</TableCell>
+        <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}} align="center">Visited Date</TableCell>
+        <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}} align="center">Time Stamp</TableCell>
+        {/* <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}} align="center">IPFS Hash</TableCell> */}
+        <TableCell style={{ color: '#FFFFFF' , fontSize:'15px'}} align="center">Download</TableCell>
       </TableRow>
     </TableHead>
     <TableBody>
       {records.map((record) => (
         <TableRow key={record.id}>
-          <TableCell component="th" scope="row">
+          <TableCell component="th" scope="row" style={{ color: '#000000', fontSize:'15px' }}>
             {record.id}
           </TableCell>
-          <TableCell align="center">{record.dname}</TableCell>
-          <TableCell align="center">{record.reason}</TableCell>
-          <TableCell align="center">{record.visDate}</TableCell>
-          <TableCell align="center">{record.timeStamp}</TableCell>
-          <TableCell align="center">{record.ipfs}</TableCell>
-          <TableCell>
+          <TableCell align="center" style={{ color: '#000000', fontSize:'15px' }}>{record.dname}</TableCell>
+          <TableCell align="center" style={{ color: '#000000', fontSize:'15px' }}>{record.reason}</TableCell>
+          <TableCell align="center" style={{ color: '#000000', fontSize:'15px' }}>{record.visDate}</TableCell>
+          <TableCell align="center" style={{ color: '#000000', fontSize:'15px' }}>{record.timeStamp}</TableCell>
+          {/* <TableCell align="center" style={{ color: '#000000', fontSize:'15px' }}>{record.ipfs}</TableCell> */}
+          <TableCell align="center" style={{ color: '#000000', fontSize:'15px' }}>
           {/* <a href={"https://ipfs.io/ipfs/"+record.ipfs} download target='_blank' rel='noopener noreferrer'> */}
-              <IconButton>
-                <CloudDownloadRoundedIcon fontSize='large' onClick={(e) => { e.preventDefault(); window.open("https://ipfs.io/ipfs/"+record.ipfs); }}/>
+              <IconButton onClick={(e) => { e.preventDefault(); window.open("https://ipfs.io/ipfs/"+record.ipfs); }}>
+                <CloudDownloadRoundedIcon fontSize='large' />
               </IconButton>
               {/* </a> */}
           </TableCell>
@@ -237,33 +260,69 @@ getDoctorDetails();
     </TableBody>
   </Table>
 </TableContainer>
-    </div>
-                 
+    </Box>
+    </Box>   
     
-                    <Box>
-                    <TextField
-        label="Doctor Name"
-        value={docName}
-        onChange={(e) => setDocName(e.target.value)}
-      />
-      <TextField
-        label="Reason of Visit"
-        value={reasonVisit}
-        onChange={(e) => setReasonVisit(e.target.value)}
-      />
-      <TextField
-        label="Visit Date"
-        value={visitDate}
-        onChange={(e) => setVisitDate(e.target.value)}
-      />
-      <TextField
-        label="Patient Account Address"
-        value={patientAddr}
-        onChange={(e) => setPatientAddr(e.target.value)}
-      />
-      <input type="file" onChange={handleFileUpload} />
-      <Button onClick={handleAddRecord}>Add Record</Button>
+    <Box ml={20} mr={20} mt={6} mb={6}>
+    <Typography variant="h4" gutterBottom fontWeight={600} mb={2}>
+        Upload Patient Records
+      </Typography>
+    
+                    <Card variant="outlined" style={{ borderRadius: "10px" }} >
+      <Box display="flex" flexDirection="column" justifyContent="center" p={5}>
+        <Box mb={2}>
+          <TextField
+          fullWidth
+            label="Doctor Name"
+            value={docName}
+            InputProps={{ style: { fontSize: '15px' } }}
+              InputLabelProps={{ style: { fontSize: '15px' } }}
+              size='small'
+            onChange={(e) => setDocName(e.target.value)}
+          />
+        </Box>
+        <Box mb={2}>
+          <TextField
+          fullWidth
+            label="Reason of Visit"
+            value={reasonVisit}
+            InputProps={{ style: { fontSize: '15px' } }}
+              InputLabelProps={{ style: { fontSize: '15px' } }}
+              size='small'
+            onChange={(e) => setReasonVisit(e.target.value)}
+          />
+        </Box>
+        <Box mb={2}>
+          <TextField
+          fullWidth
+            label="Visit Date"
+            value={visitDate}
+            InputProps={{ style: { fontSize: '15px' } }}
+              InputLabelProps={{ style: { fontSize: '15px' } }}
+              size='small'
+            onChange={(e) => setVisitDate(e.target.value)}
+          />
+        </Box>
+        <Box mb={2}>
+          <TextField 
+          fullWidth
+            label="Patient Account Address"
+            value={patientAddr}
+            InputProps={{ style: { fontSize: '15px' } }}
+              InputLabelProps={{ style: { fontSize: '15px' } }}
+              size='small'
+            onChange={(e) => setPatientAddr(e.target.value)}
+          />
+        </Box>
+        <Box display="flex" justifyContent="center">
+          <input type="file" onChange={handleFileUpload}/>
+        </Box>
+        <Box sx={{ width: '100%', mt: 2, display: 'flex', justifyContent: 'center' }}>
+            <CustomButton  text={'Add Record'} handleClick={() => handleAddRecord()}/>
+            </Box>
       </Box>
+    </Card>
+    </Box>
                 
                   
                  
