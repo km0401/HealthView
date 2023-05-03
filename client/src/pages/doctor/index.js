@@ -129,10 +129,6 @@ const ipfs = create({
   protocol: 'http'
 })
 
-
-      
-
-
 const handleAddRecord = async () => {
   console.log("handlerecord")
   try {
