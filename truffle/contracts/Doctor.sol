@@ -135,6 +135,7 @@ contract Doctor{
 
     function addDoctor(string memory _doctorName, string memory _docContact, string memory _hName, string memory _dept, uint _licenseNo) public {
         require(!isDoctor[msg.sender],"Doctor Already Registered");
+        require(Registered[_doctorName][_licenseNo],"Registered[_doctorName][_licenseNo]");
         require(msg.sender != owner,"Contract owner cannot register as doctor");
         require(bytes(_doctorName).length>0);
         require(bytes(_hName).length>0);
@@ -158,10 +159,8 @@ contract Doctor{
         }
     }
 
-
-    function isRegistered(address _docAddr) public view returns (bool){
-        doctor memory doc = doctorDetails[_docAddr];
-        return Registered[doc.docName][doc.licenseNo];
+    function isRegisteredbyAdmin(string memory _docName, uint _licenseNo) public view returns (bool){
+        return Registered[_docName][_licenseNo];
     }
 
     // function getRegisteredDoctorsList(uint _docId) public view returns(uint256 license){

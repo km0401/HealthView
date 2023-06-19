@@ -36,6 +36,8 @@ function DoctorRegister() {
       if (isRegistered) {
         throw new Error("Doctor already registered");
       }
+      const isDoctorAddedbyAdmin = await contract.methods.isRegisteredbyAdmin(doctorName , licenseNo).call();
+      if(!isDoctorAddedbyAdmin) throw new Error("Get yourself registered by Admin");
   
       // Call the Solidity function with the user's input values
       await contract.methods.addDoctor(doctorName, docContact, hName, dept, licenseNo).send({ from: accounts[0] });
